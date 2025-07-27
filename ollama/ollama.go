@@ -41,9 +41,9 @@ func main() {
 		ollama.WithTimeout(time.Minute * 5),
 	)
 
-	// 	clientNegative := ollama.NewClient(
-	// 	ollama.WithTimeout(time.Minute * 5),
-	// )
+	clientNegative := ollama.NewClient(
+		ollama.WithTimeout(time.Minute * 5),
+	)
 
 	// Define messages for positive and negative participants
 	// Each participant will have their own set of messages, starting with the system prompt
@@ -69,25 +69,31 @@ func main() {
 		panic(errPositive)
 	}
 
-	// messagesNegative := []ollama.Message{
+		println("Positive Participant Response:", respPositive.Message.Content)
 
-	// 	{
-	// 		Role:    "system",
-	// 		Content: systemPrompt + "\n\nYou have been assigned the negative position in the debate. Your task is to argue against the topic: " + debateTopic,
-	// 	},
-	// }
 
-	// respNegative, errNegative := clientNegative.Chat(context.Background(), ollama.ChatRequest{
-	// 	Model:    "llama3.2",
-	// 	Messages: messagesNegative,
-	// })
+	messagesNegative := []ollama.Message{
 
-	// if errNegative != nil {
-	// 	panic(errNegative)
-	// }
+		{
+			Role:    "system",
+			Content: systemPrompt + "\n\nYou have been assigned the negative position in the debate. Your task is to argue against the topic: " + debateTopic,
+		},
+		{
+			Role:    "user",
+			Content: respPositive.Message.Content,
+		},
+	}
+
+	respNegative, errNegative := clientNegative.Chat(context.Background(), ollama.ChatRequest{
+		Model:    "llama3.2",
+		Messages: messagesNegative,
+	})
+
+	if errNegative != nil {
+		panic(errNegative)
+	}
 
 	// Print the responses from both participants
-	println("Positive Participant Response:", respPositive.Message.Content)
-	// println("Negative Participant Response:", respNegative.Message.Content)
+	println("\n\nNegative Participant Response:", respNegative.Message.Content)
 
 }
